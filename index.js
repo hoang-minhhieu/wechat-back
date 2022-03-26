@@ -16,10 +16,12 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
-
   socket.on("join_room", (data) => {
     socket.join(data);
+    socket.room = data
+    socket.emit("user_socket_id", socket.id)
     console.log(`User with ID: ${socket.id} joined room: ${data}`);
+    console.log("Total users of room " + socket.room + ": " + io.sockets.adapter.rooms.get(socket.room).size)
   });
 
   socket.on("send_message", (data) => {
@@ -28,6 +30,9 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User Disconnected", socket.id);
+    if (io.sockets.adapter.rooms.get(socket.room))
+      console.log("Total users of room " + socket.room + ": " + io.sockets.adapter.rooms.get(socket.room).size)
+    else console.log("Total users of room " + socket.room + ": 0")
   });
 });
 
