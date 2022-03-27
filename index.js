@@ -22,6 +22,9 @@ io.on("connection", (socket) => {
     socket.emit("user_socket_id", socket.id)
     console.log(`User with ID: ${socket.id} joined room: ${data}`);
     console.log("Total users of room " + socket.room + ": " + io.sockets.adapter.rooms.get(socket.room).size)
+    
+    //Update number of users connected to all users in that room
+    io.in(socket.room).emit("receive_total_users", io.sockets.adapter.rooms.get(socket.room).size)
   });
 
   socket.on("send_message", (data) => {
@@ -30,9 +33,11 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User Disconnected", socket.id);
-    if (io.sockets.adapter.rooms.get(socket.room))
+    if (io.sockets.adapter.rooms.get(socket.room)){
+      io.in(socket.room).emit("receive_total_users", io.sockets.adapter.rooms.get(socket.room).size)
       console.log("Total users of room " + socket.room + ": " + io.sockets.adapter.rooms.get(socket.room).size)
-    else console.log("Total users of room " + socket.room + ": 0")
+    }
+    else console.log("Server empty. Waiting for user...")
   });
 });
 
